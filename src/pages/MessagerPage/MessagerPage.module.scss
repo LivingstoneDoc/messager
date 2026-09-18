@@ -1,0 +1,45 @@
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg);
+  overflow: hidden;
+}
+
+.sidebarWrapper {
+  width: 350px;
+  min-width: 350px;
+  border-right: 1px solid var(--border);
+  display: flex;
+}
+
+.chatAreaWrapper {
+  flex: 1;
+  display: flex;
+
+  .emptyState {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+    color: var(--muted);
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container.mobileChatActive .sidebarWrapper {
+    display: none;
+  }
+
+  .sidebarWrapper {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .container:not(.mobileChatActive) .chatAreaWrapper {
+    display: none;
+  }
+}

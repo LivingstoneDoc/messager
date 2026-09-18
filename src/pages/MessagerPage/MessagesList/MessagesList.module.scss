@@ -1,0 +1,110 @@
+.chatArea {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+}
+
+.chatAreaHeader {
+  height: 60px;
+  background-color: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: 600;
+  font-size: 16px;
+
+  .backButton {
+    display: none;
+    background: none;
+    border: none;
+    margin-right: 12px;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 8px;
+    margin-left: -8px;
+
+    @media (max-width: 768px) {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.messagesList {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 65%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.4;
+  position: relative;
+  word-wrap: break-word;
+
+  &.outgoing {
+    align-self: flex-end;
+    background-color: var(--msg-out);
+    border-bottom-right-radius: 4px;
+  }
+
+  &.incoming {
+    align-self: flex-start;
+    background-color: var(--msg-in);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+}
+
+.inputArea {
+  padding: 16px 20px;
+  background-color: var(--panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+
+  input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background-color: var(--bg);
+
+    &:focus {
+      border-color: var(--primary);
+    }
+  }
+
+  .sendButton {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: #1d4ed8;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      transform: translateX(-1px) translateY(1px);
+    }
+  }
+}

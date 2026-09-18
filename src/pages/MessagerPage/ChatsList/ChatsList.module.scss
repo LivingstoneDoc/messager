@@ -1,0 +1,102 @@
+.sidebar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--panel);
+}
+
+.sidebarHeader {
+  height: 60px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg);
+
+  input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background-color: var(--panel);
+    font-size: 14px;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: var(--primary);
+    }
+  }
+
+  .searchButton {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #1d4ed8;
+    }
+  }
+}
+
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  .chatItem {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 10px;
+    border-radius: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid var(--border);
+
+    &:hover {
+      background-color: var(--msg-out);
+    }
+
+    &.active {
+      background-color: var(--primary);
+      color: white;
+
+      .chatItemPhone {
+        color: white;
+      }
+    }
+
+    .chatItemAvatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .chatItemPhone {
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+}
