@@ -1,13 +1,38 @@
 import { useState } from "react";
 import styles from "./MessagesList.module.scss";
 
+interface Message {
+  id: string;
+  text: string;
+  isOutgoing: boolean;
+}
+
 interface MessagesListProps {
   activeChat: string;
   onBack: () => void;
 }
 
+const defaultMessages: Message[] = [
+  {
+    id: "msg-1",
+    text: "Привет!",
+    isOutgoing: false,
+  },
+  {
+    id: "msg-2",
+    text: "Привет! Как дела?",
+    isOutgoing: true,
+  },
+  {
+    id: "msg-3",
+    text: "Супер!",
+    isOutgoing: false,
+  },
+];
+
 export const MessagesList = ({ activeChat, onBack }: MessagesListProps) => {
   const [messageText, setMessageText] = useState("");
+  const [messages, setMessages] = useState<Message[]>(defaultMessages);
   return (
     <main className={styles.chatArea}>
       <>
@@ -23,10 +48,14 @@ export const MessagesList = ({ activeChat, onBack }: MessagesListProps) => {
         </div>
 
         <div className={styles.messagesList}>
-          <div className={`${styles.message} ${styles.incoming}`}>Привет!</div>
-          <div className={`${styles.message} ${styles.outgoing}`}>
-            Привет, как дела?
-          </div>
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`${styles.message} ${message.isOutgoing ? styles.outgoing : styles.incoming}`}
+            >
+              {message.text}
+            </div>
+          ))}
         </div>
 
         <div className={styles.inputArea}>
