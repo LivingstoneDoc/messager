@@ -130,6 +130,16 @@
     }
   }
 
+  .errorMessage {
+    color: #dc2626;
+    font-size: 14px;
+    background-color: #fef2f2;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #f87171;
+    text-align: center;
+  }
+
   .submitButton {
     margin-top: 10px;
     background-color: var(--primary);
@@ -148,6 +158,12 @@
 
     &:active {
       transform: translateY(1px);
+    }
+
+    &:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+      transform: none;
     }
   }
 

@@ -4,9 +4,14 @@ import styles from "./ChatsList.module.scss";
 interface ChatsListProps {
   activeChat: string | null;
   onSelectChat: (phone: string) => void;
+  onLogout: () => void;
 }
 
-export const ChatsList = ({ activeChat, onSelectChat }: ChatsListProps) => {
+export const ChatsList = ({
+  activeChat,
+  onSelectChat,
+  onLogout,
+}: ChatsListProps) => {
   const [searchPhone, setSearchPhone] = useState("");
   const [chats, setChats] = useState<string[]>(["79991234567", "79997654321"]);
   const handleSearchChat = (e: React.FormEvent) => {
@@ -33,6 +38,13 @@ export const ChatsList = ({ activeChat, onSelectChat }: ChatsListProps) => {
           Найти
         </button>
       </form>
+      <button
+        onClick={onLogout}
+        className={styles.logoutButton}
+        title="Выйти из аккаунта"
+      >
+        Выйти
+      </button>
 
       <div className={styles.chatList}>
         {chats.map((phone) => (

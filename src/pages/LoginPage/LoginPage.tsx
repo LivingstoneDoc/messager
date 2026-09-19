@@ -1,10 +1,52 @@
 import { useState } from "react";
 import styles from "./LoginPage.module.scss";
+import { AUTH_ERRORS } from "../../constants/messages";
+import { getApiUrl } from "../../api/config";
 
-export const LoginPage = () => {
+interface LoginPageProps {
+  onLoginSuccess: (idInstance: string, apiTokenInstance: string) => void;
+}
+
+export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
   const [isTokenVisible, setIsTokenVisible] = useState(false);
+  const [idInstance, setIdInstance] = useState("");
+  const [apiTokenInstance, setApiTokenInstance] = useState("");
+  const [showToken, setShowToken] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const toggleTokenVisibility = () => {
     setIsTokenVisible((prev) => !prev);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!idInstance.trim() || !apiTokenInstance.trim()) {
+      setError(AUTH_ERRORS.EMPTY_FIELDS);
+      return;
+    }
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const url = getApiUrl(idInstance, apiTokenInstance, "getStateInstance");
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(AUTH_ERRORS.WRONG_CREDENTIALS);
+      }
+
+      const data = await response.json();
+      if (data.stateInstance === "authorized") {
+        onLoginSuccess(idInstance, apiTokenInstance);
+      } else {
+        setError(AUTH_ERRORS.NOT_AUTHORIZED);
+      }
+    } catch (err) {
+      setError(AUTH_ERRORS.NETWORK_ERROR);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div className={styles.container}>
@@ -12,13 +54,15 @@ export const LoginPage = () => {
         <h1 className={styles.title}>Вход в мессенджер</h1>
         <p className={styles.subtitle}>Введите учетные данные из GREEN-API</p>
 
-        <form className={styles.form}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="idInstance">Идентификатор (idInstance)</label>
             <input
               id="idInstance"
               type="text"
               placeholder="Например: 1101823456"
+              value={idInstance}
+              onChange={(e) => setIdInstance(e.target.value)}
               required
             />
           </div>
@@ -33,6 +77,8 @@ export const LoginPage = () => {
                 type={isTokenVisible ? "text" : "password"}
                 placeholder="Ваш API токен"
                 required
+                value={apiTokenInstance}
+                onChange={(e) => setApiTokenInstance(e.target.value)}
               />
               <button
                 type="button"
@@ -44,8 +90,13 @@ export const LoginPage = () => {
             </div>
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Войти
+          {error && <div className={styles.errorMessage}>{error}</div>}
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={isLoading}
+          >
+            {isLoading ? "Проверка..." : "Войти"}
           </button>
           <p className={styles.hint}>
             Нет аккаунта? Получите данные в{" "}
