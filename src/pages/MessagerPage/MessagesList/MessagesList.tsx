@@ -16,16 +16,27 @@ interface MessagesListProps {
   credentials: Credentials;
 }
 
+const checkMessages = (chat: string) => {
+  const savedMessages = sessionStorage.getItem(`chat_${chat}`);
+  return savedMessages ? JSON.parse(savedMessages) : [];
+};
+
 export const MessagesList = ({
   activeChat,
   onBack,
   credentials,
 }: MessagesListProps) => {
   const [messageText, setMessageText] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(
+    checkMessages(activeChat),
+  );
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem(`chat_${activeChat}`, JSON.stringify(messages));
+  }, [messages, activeChat]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

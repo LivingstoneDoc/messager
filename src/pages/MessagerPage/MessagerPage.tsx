@@ -27,6 +27,7 @@ export const MessagerPage = ({ credentials, onLogout }: MessagerPageProps) => {
       <div className={styles.chatAreaWrapper}>
         {activeChat ? (
           <MessagesList
+            key={activeChat}
             activeChat={activeChat}
             onBack={() => setActiveChat(null)}
             credentials={credentials}
