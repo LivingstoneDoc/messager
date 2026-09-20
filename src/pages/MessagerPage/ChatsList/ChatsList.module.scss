@@ -56,7 +56,7 @@
   transition: color 0.2s;
 
   &:hover {
-    color: #dc2626;
+    color: var(--error);
   }
 }
 

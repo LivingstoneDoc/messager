@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./ChatsList.module.scss";
 
 interface ChatsListProps {
@@ -7,24 +7,34 @@ interface ChatsListProps {
   onLogout: () => void;
 }
 
+const checkSavedChats = () => {
+  const saved = localStorage.getItem("savedChats");
+  return saved ? JSON.parse(saved) : [];
+};
+
 export const ChatsList = ({
   activeChat,
   onSelectChat,
   onLogout,
 }: ChatsListProps) => {
   const [searchPhone, setSearchPhone] = useState("");
-  const [chats, setChats] = useState<string[]>(["79991234567", "79997654321"]);
-  const handleSearchChat = (e: React.FormEvent) => {
+  const [chats, setChats] = useState<string[]>(checkSavedChats());
+
+  useEffect(() => {
+    localStorage.setItem("savedChats", JSON.stringify(chats));
+  }, [chats]);
+
+  const handleSearchChat = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!searchPhone.trim()) return;
-
-    if (!chats.includes(searchPhone)) {
-      setChats([searchPhone, ...chats]);
+    const cleanPhone = searchPhone.replace(/\D/g, "");
+    if (!cleanPhone) return;
+    if (!chats.includes(cleanPhone)) {
+      setChats((prev) => [cleanPhone, ...prev]);
     }
-
-    onSelectChat(searchPhone);
+    onSelectChat(cleanPhone);
     setSearchPhone("");
   };
+
   return (
     <aside className={styles.sidebar}>
       <form className={styles.sidebarHeader} onSubmit={handleSearchChat}>
@@ -54,19 +64,7 @@ export const ChatsList = ({
             onClick={() => onSelectChat(phone)}
           >
             <div className={styles.chatItemAvatar}>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
+              <AvatarIcon />
             </div>
             <div className={styles.chatItemPhone}>+{phone}</div>
           </div>
@@ -79,10 +77,28 @@ export const ChatsList = ({
               color: "var(--muted)",
             }}
           >
-            Чатов пока нет
+            Список чатов пуст. Найдите чат по номеру телефона.
           </div>
         )}
       </div>
     </aside>
+  );
+};
+
+const AvatarIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+      <circle cx="12" cy="7" r="4"></circle>
+    </svg>
   );
 };

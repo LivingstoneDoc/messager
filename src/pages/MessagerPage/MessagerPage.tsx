@@ -29,6 +29,7 @@ export const MessagerPage = ({ credentials, onLogout }: MessagerPageProps) => {
           <MessagesList
             activeChat={activeChat}
             onBack={() => setActiveChat(null)}
+            credentials={credentials}
           />
         ) : (
           <div className={styles.emptyState}>

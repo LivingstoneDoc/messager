@@ -131,7 +131,7 @@
   }
 
   .errorMessage {
-    color: #dc2626;
+    color: var(--error);
     font-size: 14px;
     background-color: #fef2f2;
     padding: 10px;

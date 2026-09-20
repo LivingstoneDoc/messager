@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./MessagesList.module.scss";
+import { getApiUrl } from "../../../api/config";
+import type { Credentials } from "../../../App";
+import { MESSAGES_ERRORS } from "../../../constants/messages";
 
 interface Message {
   id: string;
@@ -10,66 +13,117 @@ interface Message {
 interface MessagesListProps {
   activeChat: string;
   onBack: () => void;
+  credentials: Credentials;
 }
 
-const defaultMessages: Message[] = [
-  {
-    id: "msg-1",
-    text: "Привет!",
-    isOutgoing: false,
-  },
-  {
-    id: "msg-2",
-    text: "Привет! Как дела?",
-    isOutgoing: true,
-  },
-  {
-    id: "msg-3",
-    text: "Супер!",
-    isOutgoing: false,
-  },
-];
-
-export const MessagesList = ({ activeChat, onBack }: MessagesListProps) => {
+export const MessagesList = ({
+  activeChat,
+  onBack,
+  credentials,
+}: MessagesListProps) => {
   const [messageText, setMessageText] = useState("");
-  const [messages, setMessages] = useState<Message[]>(defaultMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (
+    e: React.SyntheticEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+
+    const text = messageText.trim();
+    if (!text || isSending) return;
+
+    setIsSending(true);
+    setSendError("");
+
+    try {
+      const sendUrl = getApiUrl(
+        credentials.idInstance,
+        credentials.apiTokenInstance,
+        "sendMessage",
+      );
+
+      const response = await fetch(sendUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chatId: `${activeChat}@c.us`,
+          message: text,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(MESSAGES_ERRORS.NETWORK_ERROR);
+      }
+      const data = await response.json();
+      const newMessage: Message = {
+        id: data.idMessage,
+        text: text,
+        isOutgoing: true,
+      };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessageText("");
+    } catch (error) {
+      console.error("Ошибка отправки:", error);
+      setSendError(MESSAGES_ERRORS.SEND_FAILED);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <main className={styles.chatArea}>
-      <>
-        <div className={styles.chatAreaHeader}>
-          <button
-            className={styles.backButton}
-            onClick={onBack}
-            title="Назад к списку чатов"
+      <div className={styles.chatAreaHeader}>
+        <button
+          className={styles.backButton}
+          onClick={onBack}
+          title="Назад к списку чатов"
+        >
+          <BackIcon />
+        </button>
+        +{activeChat}
+      </div>
+
+      <div className={styles.messagesList}>
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`${styles.message} ${message.isOutgoing ? styles.outgoing : styles.incoming}`}
           >
-            <BackIcon />
-          </button>
-          +{activeChat}
-        </div>
+            {message.text}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
-        <div className={styles.messagesList}>
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.message} ${message.isOutgoing ? styles.outgoing : styles.incoming}`}
-            >
-              {message.text}
-            </div>
-          ))}
-        </div>
+      {sendError && <div className={styles.sendError}>{sendError}</div>}
 
-        <div className={styles.inputArea}>
-          <input
-            type="text"
-            placeholder="Введите сообщение..."
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-          />
-          <button className={styles.sendButton}>
-            <SendIcon />
-          </button>
-        </div>
-      </>
+      <form className={styles.inputArea} onSubmit={handleSendMessage}>
+        <input
+          type="text"
+          placeholder="Введите сообщение..."
+          value={messageText}
+          onChange={(e) => setMessageText(e.target.value)}
+        />
+        <button
+          className={styles.sendButton}
+          disabled={isSending || !messageText.trim()}
+        >
+          <SendIcon />
+        </button>
+      </form>
     </main>
   );
 };
