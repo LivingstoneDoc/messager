@@ -5,6 +5,11 @@ export const getApiUrl = (
   idInstance: string,
   apiTokenInstance: string,
   methodName: string,
+  extraPath?: string,
 ): string => {
-  return `${GREEN_API_BASE_URL}/${GREEN_API_INSTANCE_PREFIX}${idInstance}/${methodName}/${apiTokenInstance}`;
+  const baseUrl = `${GREEN_API_BASE_URL}/${GREEN_API_INSTANCE_PREFIX}${idInstance}/${methodName}/${apiTokenInstance}`;
+  if (extraPath) {
+    return `${baseUrl}/${extraPath}`;
+  }
+  return baseUrl;
 };

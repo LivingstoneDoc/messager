@@ -67,6 +67,7 @@ export const MessagesList = ({
       if (!response.ok) {
         throw new Error(MESSAGES_ERRORS.NETWORK_ERROR);
       }
+
       const data = await response.json();
       const newMessage: Message = {
         id: data.idMessage,
@@ -82,6 +83,68 @@ export const MessagesList = ({
       setIsSending(false);
     }
   };
+
+  useEffect(() => {
+    let isPolling = true;
+    const receiveMessages = async () => {
+      try {
+        const receiveUrl = getApiUrl(
+          credentials.idInstance,
+          credentials.apiTokenInstance,
+          "receiveNotification",
+        );
+        const response = await fetch(receiveUrl);
+        if (!response.ok) return;
+        const textData = await response.text();
+        if (!textData) return;
+        const data = JSON.parse(textData);
+        if (!data) return;
+        const receiptId = data.receiptId;
+        const body = data.body;
+        const isTextMessage = body.messageData?.typeMessage === "textMessage";
+        const isIncoming = body.typeWebhook === "incomingMessageReceived";
+        const isOutgoingFromPhone =
+          body.typeWebhook === "outgoingMessageReceived";
+        if ((isIncoming || isOutgoingFromPhone) && isTextMessage) {
+          const senderPhone = String(body.senderData.senderPhoneNumber);
+          if (senderPhone === activeChat) {
+            const incomingMsg: Message = {
+              id: body.idMessage,
+              text: body.messageData.textMessageData.textMessage,
+              isOutgoing: isOutgoingFromPhone,
+            };
+            setMessages((prev) => [...prev, incomingMsg]);
+          }
+        }
+
+        const deleteUrl = getApiUrl(
+          credentials.idInstance,
+          credentials.apiTokenInstance,
+          "deleteNotification",
+          receiptId.toString(),
+        );
+        await fetch(deleteUrl, { method: "DELETE" });
+        return true;
+      } catch (error) {
+        console.error("Ошибка при получении сообщения:", error);
+        return false;
+      }
+    };
+
+    const startPolling = async () => {
+      while (isPolling) {
+        const hasMessage = await receiveMessages();
+        if (!hasMessage) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+    };
+    startPolling();
+
+    return () => {
+      isPolling = false;
+    };
+  }, [activeChat, credentials]);
 
   return (
     <main className={styles.chatArea}>
