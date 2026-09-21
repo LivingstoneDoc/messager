@@ -1,5 +1,7 @@
 # Messager (Интеграция с Green-API)
 
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://messager-pi.vercel.app/)
+
 Одностраничное React-приложение (SPA) для отправки и получения сообщений в мессенджере MAX через сервис [GREEN-API](https://green-api.com/).
 
 ## Реализовано
