@@ -2,11 +2,7 @@ import { useState } from "react";
 import styles from "./App.module.scss";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import { MessagerPage } from "./pages/MessagerPage/MessagerPage";
-
-export interface Credentials {
-  idInstance: string;
-  apiTokenInstance: string;
-}
+import type { Credentials } from "./types/auth";
 
 function App() {
   const [credentials, setCredentials] = useState<Credentials | null>(

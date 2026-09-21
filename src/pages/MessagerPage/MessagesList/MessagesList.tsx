@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./MessagesList.module.scss";
-import { getApiUrl } from "../../../api/config";
-import type { Credentials } from "../../../App";
+import type { Credentials } from "../../../types/auth";
 import { MESSAGES_ERRORS } from "../../../constants/messages";
+import { greenApi } from "../../../api/greenApi";
 
 interface Message {
   id: string;
@@ -58,28 +58,13 @@ export const MessagesList = ({
     setSendError("");
 
     try {
-      const sendUrl = getApiUrl(
+      const data = await greenApi.sendMessage(
         credentials.idInstance,
         credentials.apiTokenInstance,
-        "sendMessage",
+        activeChat,
+        text,
       );
 
-      const response = await fetch(sendUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chatId: `${activeChat}@c.us`,
-          message: text,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(MESSAGES_ERRORS.NETWORK_ERROR);
-      }
-
-      const data = await response.json();
       const newMessage: Message = {
         id: data.idMessage,
         text: text,
@@ -99,19 +84,12 @@ export const MessagesList = ({
     let isPolling = true;
     const receiveMessages = async () => {
       try {
-        const receiveUrl = getApiUrl(
+        const data = await greenApi.receiveMessage(
           credentials.idInstance,
           credentials.apiTokenInstance,
-          "receiveNotification",
         );
-        const response = await fetch(receiveUrl);
-        if (!response.ok) return;
-        const textData = await response.text();
-        if (!textData) return;
-        const data = JSON.parse(textData);
         if (!data) return;
-        const receiptId = data.receiptId;
-        const body = data.body;
+        const { receiptId, body } = data;
         const isTextMessage = body.messageData?.typeMessage === "textMessage";
         const isIncoming = body.typeWebhook === "incomingMessageReceived";
         const isOutgoingFromPhone =
@@ -128,13 +106,11 @@ export const MessagesList = ({
           }
         }
 
-        const deleteUrl = getApiUrl(
+        await greenApi.deleteNotification(
           credentials.idInstance,
           credentials.apiTokenInstance,
-          "deleteNotification",
-          receiptId.toString(),
+          receiptId,
         );
-        await fetch(deleteUrl, { method: "DELETE" });
         return true;
       } catch (error) {
         console.error("Ошибка при получении сообщения:", error);

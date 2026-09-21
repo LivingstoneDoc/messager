@@ -2,7 +2,7 @@ import { ChatsList } from "./ChatsList/ChatsList";
 import styles from "./MessagerPage.module.scss";
 import { useState } from "react";
 import { MessagesList } from "./MessagesList/MessagesList";
-import type { Credentials } from "../../App";
+import type { Credentials } from "../../types/auth";
 
 interface MessagerPageProps {
   credentials: Credentials;
