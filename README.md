@@ -1,75 +1,56 @@
-# React + TypeScript + Vite
+# Messager (Интеграция с Green-API)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Одностраничное React-приложение (SPA) для отправки и получения сообщений в мессенджере MAX через сервис [GREEN-API](https://green-api.com/).
 
-Currently, two official plugins are available:
+## Реализовано
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Согласно техническому заданию был реализован минималистичный и быстрый клиент с фокусом на надежность и UX:
 
-## React Compiler
+- **Авторизация:** Безопасный вход по `idInstance` и `apiTokenInstance` с валидацией ключей на сервере (`getStateInstance`).
+- **Создание чатов:** Возможность начать диалог, введя номер телефона (реализована очистка ввода от лишних символов).
+- **Отправка сообщений:** Интеграция метода `sendMessage` с обработкой ошибок (в т.ч. отлов лимитов API).
+- **Получение сообщений в реальном времени:** Реализован механизм **HTTP Long Polling** (методы `receiveNotification` и `deleteNotification`) с безопасным парсингом пустых ответов и фильтрацией системных уведомлений.
+- **Сохранение сессии:** Учетные данные и история текущих переписок сохраняются в `sessionStorage`. Переписка не теряется при обновлении страницы (F5), но безопасно удаляется при закрытии вкладки.
+- **Изоляция чатов:** При переключении между контактами история сообщений корректно очищается/восстанавливается.
+- **Адаптивный дизайн (Responsive UI):** Полноценная поддержка мобильных устройств. На узких экранах реализован паттерн "Список чатов и Окно переписки" с кнопкой "Назад".
+- **UX-улучшения:** Автоскролл к новым сообщениям, блокировка кнопок при загрузке, валидация полей.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Стек технологий
 
-## Expanding the ESLint configuration
+Проект разработан без использования тяжелых библиотек (Redux, Axios и т.д.) в угоду производительности и требованиям ТЗ (максимальная простота).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Ядро:** React 18
+- **Сборка:** Vite
+- **Язык:** TypeScript
+- **Стилизация:** SCSS Modules
+- **Запросы:** Встроенный `fetch` API
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Запуск проекта локально
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Убедитесь, что у вас установлен Node.js (версия 18+).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Установите зависимости
 
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+3. Запустите dev-сервер
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run dev
 ```
+
+4. Откройте в браузере ссылку, указанную в терминале (обычно `http://localhost:5173`).
+
+## Инструкция по тестированию
+
+Для корректной работы приложения вам потребуются активные учетные данные системы GREEN-API.
+
+1. Получите idInstance и apiTokenInstance [в консоли Green-API](https://console.green-api.com/).
+
+2. Обязательно отсканируйте QR-код в консоли Green-API через ваш Max на телефоне, чтобы аккаунт перешел в статус "Авторизован".
+
+3. В настройках инстанса консоли Green-API убедитесь, что поля "Адрес отправки уведомлений" и "Заголовок авторизации для отправки уведомлений" пустые, а галочки "Получать уведомления о входящих сообщениях" и "Получать уведомления о сообщениях, отправленных с телефона" включены. Без этих настроек получение сообщений работать не будет.
+
+4. Введите учетные данные на странице логина в приложении.
